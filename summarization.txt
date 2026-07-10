@@ -1,0 +1,281 @@
+
+Complete Feature Analysis: WebDevelopmentIDE.py
+---
+🚀 2. Splash Screen
+
+SplashScreen Class (Lines 250-291)
+
+- Loads splash.png from multiple candidate paths (script dir, cwd, relative)
+- Fallback rendering: draws gradient background + "WebDev IDE" title if image missing
+- Always-on-top, frameless window
+- Displays for 2.5 seconds before main window opens
+
+---
+✨ 3. Animated Visual Widgets (60fps)
+
+Particle + ParticleSystem (Lines 305-408)
+
+- Star-shaped particle emitter with physics
+ state transitions (2-second blend)
+- Hover ring effect (animated 0→1.0 alpha)
+- Mode-specific radial gradient backgrounds
+
+WaterfallAnimation (Lines 703-805)
+
+- 150 droplet particles falling with random speed/length
+- Gradient drops (transparent → sky blue → white)
+- 60fps animation, ~2 second duration
+- Emits finished signal on completion
+
+---
+🔤 4. Syntax Highlighter
+
+CodeHighlighter Class (Lines 813-1098)
+
+
+🤖 5. AI Worker Threads
+
+AIWorkerThread (Lines 1106-1198)
+
+- Streaming chat completion for 3 providers:
+  - Ollama (streaming via ollama.chat)
+  - Qwen (DashScope API, model qwen-plus)
+  - OpenAI (configurable base URL via OPENAI_BASE_URL env var)
+- Emits token-by-token via response_received signal
+
+ound error checker focused on actual errors only (syntax, undefined, type mismatches, logic errors)
+- Regex parsing of structured response (ISSUE/ORIGINAL/SUGGESTION)
+- Fallback parsing for malformed responses
+- Default model: gpt-oss:20b-cloud
+
+CodePolisher (Lines 1489-1548)
+
+- Code formatting/beautification (indentation, spacing, line breaks)
+- Strips markdown code fences from response
+- Preserves original functionality
+
+AIMessageGenerator (Lines 1551-1632)
+
+- Generates 10 creative AI status messages for the polishing animation
+- Emoji-prefixed, 3-6 words each
+- Fallback to defaults if AI fails
+
+---
+🛠️ 6. In-Editor AI Assistant
+
+QuickFixDialog (Lines 1206-1361)
+
+- Side-by-side Original vs Suggested compari
+- Three actions: Apply Fix, Keep Original, Cancel
+- Color-coded borders (red=original, green=suggestion)
+
+PolishingOverlay (Lines 1635-1791)
+
+matching for applying fixes (difflib SequenceMatcher fallback)
+- Thread cleanup on destruction
+
+---
+📝 7. Code Editor
+
+CodeEditor Class (Lines 2256-2391)
+
+- Auto-closing pairs: (), [], {}, "", ''
+- Skip-over closing bracket when typing over existing pair
+- HTML tag auto-completion on Enter (with in
+- Skips void elements: img, br, hr, input, meta, link
+- Pair deletion on Backspace (deletes both b
+- Consolas font, fixed pitch, tab width 40px
+
+---
+💻 8. Claude Code Integration
+
+
+ClaudeGUIRequestWorker (Lines 2589-2665)
+
+- Non-interactive single-prompt Claude requests
+- Output streamed via outputReady signal
+- Used for GUI mode where streaming isn't desired
+
+ClaudeCodePanel (Lines 2668-3319)
+
+- Full xterm.js terminal for interactive Claude sessions
+- Two interface modes:
+  - GUI mode: styled chat transcript + text input + quick actions
+  - TUI mode: full xterm.js terminal with PT
+- Model selector: Default / Fable / Opus / Sonnet / Haiku
+- Effort levels: low / medium / high / xhigh / max
+- Permission modes: Default / Plan / Auto / Accept edits
+- Quick action buttons: Plan, Explain, Fix,
+
+🤖 9. AI Panel (Cody)
+
+AIPanelWidget (Lines 3326-4505)
+
+- Two-mode switcher: Cody (Ollama-based) and Claude Code
+- Expandable AI workspace (animated resize via QVariantAnimation)
+- Animated AI logo with 3 states (idle/thinking/generating)
+- Header: title, model label, status indicator
+- Conversation display with role-colored messages (user=blue, Cody=green)
+- Chat management:
+  - Save chat → ~/.ide_chats/chat_TIMESTAMP.json
+  - Load chat with model restoration
+  - Clear & save current chat
+- Model switcher: DeepSeek Coder 6.7B (Local
+Generate
+  - 🔧 Fix
+  - ⚡ Refactor
+- Auto-apply checkbox (auto-applies AI code to editor)
+- Apply to Editor button (replace or append)
+- Streaming response handler:
+  - Separates plain text (→ chat) from code blocks (→ editor)
+  - Multiple code blocks supported (clears on first, appends rest)
+  - First-chunk clear of active editor
+- Custom system prompt forcing Cody persona + "summary first, then code" format
+- Sends current editor context with each req
+
+---
+📁 10. File Explorer
+
+FileExplorerWidget (Lines 4512-4860)
+
+- QTreeWidget-based sidebar with header bar
+- Recursive directory listing (hidden dotfiles skipped)
+- File-type icons: 🌐 HTML, 🎨 CSS, 📜 JS/TS, 🐍 Python, 📋 JSON, 📄 XML, 📝 Markdown, 📃 Text
+- Double-click to open files
+- Context menu (right-click):
+  - On folder: New File, New Folder, Delete
+  - On file: Open, Delete File
+- QFileSystemWatcher with 100ms debounce auto-refresh
+- Preserves expanded state on refresh
+- PermissionError handling
+ridge for PowerShell via pywinpty
+- Deferred launch if xterm.js not yet ready
+- Session control: start, restart, send Ctrl+C, kill
+
+TerminalWidget (Lines 5102-5216)
+
+- Embedded xterm.js terminal with VS Code-like dark theme
+- Title bar with PowerShell label + hexagon icon
+- Toolbar buttons: Ctrl+C (interrupt), + (new session), ✕ (close)
+- xterm.js v5.3.0 with FitAddon loaded from CDN
+- Custom VS Code color theme (blue cursor, r
+- QWebChannel bridge for bidirectional Pytho
+- Falls back to instruction label if PySide6 WebEngine missing
+- Working directory sync'd to current file's directory
+
+---
+-pane horizontal splitter:
+  - File Explorer (150-250px, collapsible)
+  - Editor area (flex)
+  - AI Panel (280-640px, collapsible)
+- Three-pane vertical splitter in editor area:
+  - Tab widget (stretch factor 4)
+  - Bottom output panel (factor 1)
+  - Terminal (factor 2, hidden by default)
+- Status bar with: status label, language label, position label (Ln/Col)
+- Animated AI panel resize (QVariantAnimation, 260ms OutCubic easing)
+
+Menu Bar (Lines 5403-5470)
+
+- File: New (Ctrl+N), Open (Ctrl+O), Open Folder (Ctrl+Shift+O), Save (Ctrl+S), Save As (Ctrl+Shift+S), Exit (Ctrl+Q)
+- Edit: Undo (Ctrl+Z), Redo (Ctrl+Y), Find (
+ Toggle AI Panel, Toggle In-Editor AI (Ctrl+Shift+A), Toggle Terminal (Ctrl+Shift+`), Theme submenu (6 themes), Zoom In (Ctrl++), Zoom Out (Ctrl+-)
+- Run: Run in Browser (Ctrl+F5)
+- Help: About
+
+Toolbar (Lines 5472-5608)
+
+- New, Open, Save, Undo, Redo, Find buttons
+- Theme selector dropdown (synced with menu)
+- AI Panel toggle, In-Editor AI toggle
+- "Scrap Code" button (red themed, triggers
+
+File Operations
+
+- New file: Untitled-N tabs with HTML default
+- Open file: file dialog filter for web files; auto-detects language from extension
+- Save / Save As: writes UTF-8, removes modified indicator (●)
+- Open folder: syncs file explorer + Claude Code working directory
+- Language auto-detection: .html, .htm, .css, .js, .jsx, .ts
+- Tab close: prompts to save unsaved changes
+
+Editor Management
+
+- Modified files show ● prefix in tab title
+- Tab change updates status bar and AI statu
+- Per-editor InEditorAIAssistant instance (added dynamically to toolbar)
+- AI status widget follows active tab
+
+Find/Replace (Lines 6115-6129)
+
+- Find: simple text search via QTextEdit.fin
+ toolbar combo + menu action
+- Status bar feedback for 3 seconds
+
+Run in Browser (Lines 6163-6175)
+
+- Opens current HTML file via webbrowser
+- For unsaved content: writes to temp file first
+
+Scrap Code (Lines 6070-6099)
+
+- Confirmation dialog
+- Plays WaterfallAnimation overlay (~2 seconds)
+- Clears all editor tabs on completion
+- Auto-saves after clearing
+- Status bar confirmation
+
+AI Panel Sizing (Lines 5800-5833)
+
+s up all per-editor AI assistants on close
+- Cleans up Claude Code panel
+- Stops animation timers
+
+---
+🚪 13. Entry Point (Lines 6266-6291)
+
+main() Function
+
+- Creates QApplication with Fusion style
+- Applies ThemeManager palette
+- Shows splash screen
+- Creates main window (hidden)
+- 2.5-second timer then closes splash and shows main window
+- Enters Qt event loop
+a → HAS_OLLAMA
+- requests → HAS_REQUESTS
+- pywinpty → HAS_WINPTY (terminal)
+- PySide6.QtWebEngineWidgets + QWebChannel → HAS_WEBENGINE (xterm.js rendering)
+
+All features degrade gracefully when dependencies are missing, with helpful install instructions.
+
+---
+📊 Summary Statistics
+
+┌────────────────────────────┬──────────────
+│          Category          │                  Count                  │
+├────────────────────────────┼─────────────────────────────────────────┤
+│ Major classes              │ ~25                                     │
+├────────────────────────────┼──────────────
+tion widgets          │ 3 (Particle, AI Logo, Waterfall)        │
+├────────────────────────────┼─────────────────────────────────────────┤
+│ Worker threads             │ 4 (AI, Analyzer, Polisher, Message Gen) │
+├────────────────────────────┼─────────────────────────────────────────┤
+│ Syntax themes              │ 6                                       │
+├────────────────────────────┼─────────────────────────────────────────┤
+│ AI providers               │ 3 (Ollama, Qwen, OpenAI)                │
+├────────────────────────────┼─────────────────────────────────────────┤
+│ Claude models              │ 5 (Default, Fable, Opus, Sonnet, Haiku) │
+├────────────────────────────┼─────────────────────────────────────────┤
+│ File extensions recognized │ 8
+├────────────────────────────┼─────────────────────────────────────────┤
+│ Menu bar items             │ ~18 actions                             │
+├────────────────────────────┼──────────────
+│ Keyboard shortcuts         │ ~15                                     │
+├────────────────────────────┼─────────────────────────────────────────┤
+│ Lines of code              │ 6292                                    │
+└────────────────────────────┴─────────────────────────────────────────┘
+
+This is essentially a mini VS Code clone with native AI integration, dual AI modes (Ollama-based "Cody" + Claude CodeCLI), live xterm.js terminal, animated polish UI, and a polished Material-Dark theme — all in a single Python file.
+
+✻ Churned for 1m 10s
